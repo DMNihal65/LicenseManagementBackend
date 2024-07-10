@@ -1,2 +1,2 @@
-# LicenseManagementBackend
-Backed for the LicenseManagement software using the Fastapi and Python along with the Mongodb Database
+# InventoryManagementSystem
+Inventory Management System Backend using the Fastapi python Backend
