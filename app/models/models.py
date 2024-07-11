@@ -30,6 +30,34 @@ class ToolCategory(Base):
     ParentID = Column(Integer, ForeignKey("tool_categories.CategoryID"), nullable=True)
     children = relationship("ToolCategory", backref="parent", remote_side=[CategoryID])
 
+# class Tool(Base):
+#     __tablename__ = "tools"
+#     ToolID = Column(Integer, primary_key=True, index=True)
+#     ToolName = Column(String, nullable=False)
+#     QuantityAvailable = Column(Integer, nullable=False)
+#     Status = Column(Enum('Available', 'In Use', name='tool_status_enum'), nullable=False)
+#     Location = Column(String)
+#     LastUpdated = Column(TIMESTAMP)
+#     CategoryID = Column(Integer, ForeignKey("tool_categories.CategoryID"))
+#
+#     # Relationship with ToolCategory
+#     category = relationship("ToolCategory", backref="tools")
+#
+#     # Relationship with ToolRequest
+#     requests = relationship("ToolRequest", back_populates="tool")
+
+
+class Batch(Base):
+    __tablename__ = "batches"
+    BatchID = Column(Integer, primary_key=True, index=True)
+    ToolID = Column(Integer, ForeignKey("tools.ToolID"))
+    BatchNumber = Column(String, nullable=False)
+    ManufactureDate = Column(TIMESTAMP)
+    ExpiryDate = Column(TIMESTAMP)
+
+    tool = relationship("Tool", back_populates="batches")
+
+# Add relationship in Tool model
 class Tool(Base):
     __tablename__ = "tools"
     ToolID = Column(Integer, primary_key=True, index=True)
@@ -40,12 +68,11 @@ class Tool(Base):
     LastUpdated = Column(TIMESTAMP)
     CategoryID = Column(Integer, ForeignKey("tool_categories.CategoryID"))
 
-    # Relationship with ToolCategory
+    # Relationships
     category = relationship("ToolCategory", backref="tools")
-
-    # Relationship with ToolRequest
     requests = relationship("ToolRequest", back_populates="tool")
-
+    # vendor_requests = relationship("VendorRequest", back_populates="tool")
+    batches = relationship("Batch", back_populates="tool")
 
 class ToolRequest(Base):
     __tablename__ = "tool_requests"

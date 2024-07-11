@@ -35,7 +35,7 @@ class ToolBase(BaseModel):
     QuantityAvailable: int
     Status: str
     Location: Optional[str] = None
-    CategoryID: Optional[int] = None  # Added CategoryID
+    CategoryID: Optional[int] = None
 
 class ToolCreate(ToolBase):
     pass
@@ -44,7 +44,7 @@ class ToolUpdate(BaseModel):
     QuantityAvailable: Optional[int] = None
     Status: Optional[str] = None
     Location: Optional[str] = None
-    CategoryID: Optional[int] = None  # Added CategoryID
+    CategoryID: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -169,3 +169,45 @@ class ToolsInUseTrends(BaseModel):
 
     class Config:
         from_attributes = True
+
+class BatchBase(BaseModel):
+    ToolID: int
+    BatchNumber: str
+    ManufactureDate: Optional[datetime] = None
+    ExpiryDate: Optional[datetime] = None
+
+class BatchCreate(BatchBase):
+    pass
+
+class Batch(BatchBase):
+    BatchID: int
+
+    class Config:
+        orm_mode = True
+
+class LocationBase(BaseModel):
+    LocationName: str
+    Address: str
+
+class LocationCreate(LocationBase):
+    pass
+
+class Location(LocationBase):
+    LocationID: int
+
+    class Config:
+        orm_mode = True
+
+class ToolLocationBase(BaseModel):
+    ToolID: int
+    LocationID: int
+    Quantity: int
+
+class ToolLocationCreate(ToolLocationBase):
+    pass
+
+class ToolLocation(ToolLocationBase):
+    ToolLocationID: int
+
+    class Config:
+        orm_mode = True
