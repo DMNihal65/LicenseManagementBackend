@@ -2,7 +2,6 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Enum, TIMESTAMP
 from sqlalchemy.orm import relationship
 from app.database.database import Base
 
-
 class Department(Base):
     __tablename__ = "departments"
     DepID = Column(Integer, primary_key=True, index=True)
@@ -15,13 +14,10 @@ class User(Base):
     Email = Column(String, nullable=False)
     Phone = Column(String)
     Address = Column(String)
-    DepartmentID = Column(Integer, ForeignKey("departments.DepID"))  # Foreign key relationship
+    DepartmentID = Column(Integer, ForeignKey("departments.DepID"))
 
-    # Relationship with Department
     department = relationship("Department", backref="users")
-
-    # Relationship with ToolRequest (assuming there's a ToolRequest model)
-    requests = relationship("ToolRequest", back_populates="user")  # Make sure this matches the ToolRequest model
+    requests = relationship("ToolRequest", back_populates="user")
 
 class ToolCategory(Base):
     __tablename__ = "tool_categories"
@@ -30,22 +26,38 @@ class ToolCategory(Base):
     ParentID = Column(Integer, ForeignKey("tool_categories.CategoryID"), nullable=True)
     children = relationship("ToolCategory", backref="parent", remote_side=[CategoryID])
 
-# class Tool(Base):
-#     __tablename__ = "tools"
-#     ToolID = Column(Integer, primary_key=True, index=True)
-#     ToolName = Column(String, nullable=False)
-#     QuantityAvailable = Column(Integer, nullable=False)
-#     Status = Column(Enum('Available', 'In Use', name='tool_status_enum'), nullable=False)
-#     Location = Column(String)
-#     LastUpdated = Column(TIMESTAMP)
-#     CategoryID = Column(Integer, ForeignKey("tool_categories.CategoryID"))
-#
-#     # Relationship with ToolCategory
-#     category = relationship("ToolCategory", backref="tools")
-#
-#     # Relationship with ToolRequest
-#     requests = relationship("ToolRequest", back_populates="tool")
+class Location(Base):
+    __tablename__ = "locations"
+    LocationID = Column(Integer, primary_key=True, index=True)
+    LocationName = Column(String, nullable=False)
+    Address = Column(String, nullable=True)
 
+    tool_locations = relationship("ToolLocation", back_populates="location")
+
+class Tool(Base):
+    __tablename__ = "tools"
+    ToolID = Column(Integer, primary_key=True, index=True)
+    ToolName = Column(String, nullable=False)
+    QuantityAvailable = Column(Integer, nullable=False)
+    Status = Column(Enum('Available', 'In Use', name='tool_status_enum'), nullable=False)
+    Location = Column(String)
+    LastUpdated = Column(TIMESTAMP)
+    CategoryID = Column(Integer, ForeignKey("tool_categories.CategoryID"))
+
+    category = relationship("ToolCategory", backref="tools")
+    requests = relationship("ToolRequest", back_populates="tool")
+    batches = relationship("Batch", back_populates="tool")
+    tool_locations = relationship("ToolLocation", back_populates="tool")
+
+class ToolLocation(Base):
+    __tablename__ = "tool_locations"
+    ToolLocationID = Column(Integer, primary_key=True, index=True)
+    ToolID = Column(Integer, ForeignKey("tools.ToolID"), nullable=False)
+    LocationID = Column(Integer, ForeignKey("locations.LocationID"), nullable=False)
+    Quantity = Column(Integer, nullable=False)
+
+    tool = relationship("Tool", back_populates="tool_locations")
+    location = relationship("Location", back_populates="tool_locations")
 
 class Batch(Base):
     __tablename__ = "batches"
@@ -57,28 +69,11 @@ class Batch(Base):
 
     tool = relationship("Tool", back_populates="batches")
 
-# Add relationship in Tool model
-class Tool(Base):
-    __tablename__ = "tools"
-    ToolID = Column(Integer, primary_key=True, index=True)
-    ToolName = Column(String, nullable=False)
-    QuantityAvailable = Column(Integer, nullable=False)
-    Status = Column(Enum('Available', 'In Use', name='tool_status_enum'), nullable=False)
-    Location = Column(String)
-    LastUpdated = Column(TIMESTAMP)
-    CategoryID = Column(Integer, ForeignKey("tool_categories.CategoryID"))
-
-    # Relationships
-    category = relationship("ToolCategory", backref="tools")
-    requests = relationship("ToolRequest", back_populates="tool")
-    # vendor_requests = relationship("VendorRequest", back_populates="tool")
-    batches = relationship("Batch", back_populates="tool")
-
 class ToolRequest(Base):
     __tablename__ = "tool_requests"
     RequestID = Column(Integer, primary_key=True, index=True)
-    UserID = Column(Integer, ForeignKey("users.UserID"))  # Corrected column name
-    ToolID = Column(Integer, ForeignKey("tools.ToolID"))  # Corrected column name
+    UserID = Column(Integer, ForeignKey("users.UserID"))
+    ToolID = Column(Integer, ForeignKey("tools.ToolID"))
     QuantityNeeded = Column(Integer, nullable=False)
     PurposeOfUse = Column(String)
     AdditionalComments = Column(String)
@@ -87,8 +82,7 @@ class ToolRequest(Base):
     AdminID = Column(Integer)
     AdminApprovalDate = Column(TIMESTAMP)
 
-    # Relationships
-    user = relationship("User", back_populates="requests")  # Make sure this matches the User model
+    user = relationship("User", back_populates="requests")
     tool = relationship("Tool", back_populates="requests")
 
 class InventoryAnalytics(Base):

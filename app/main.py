@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.controllers import user_controller, tool_controller, tool_request_controller, department_controller, \
-    inventory_controller, tool_category_controller, batches
+    inventory_controller, tool_category_controller, batches, location
 from app.database.database import engine
 from app.models.models import Base
 
@@ -28,6 +28,7 @@ app.include_router(inventory_controller.router)
 app.include_router(tool_category_controller.router, prefix="/api/v1")
 app.include_router(department_controller.router)  # Include the department controller
 app.include_router(batches.router, prefix="/api", tags=["batches"])
+app.include_router(location.router, prefix="/api", tags=["location"])
 
 if __name__ == "__main__":
     import uvicorn
